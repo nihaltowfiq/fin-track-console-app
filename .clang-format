@@ -4,6 +4,7 @@ TabWidth: 2
 UseTab: Never
 
 BreakBeforeBraces: Attach
+IndentCaseLabels: true
 
 # Ensure functions with content are always multiline
 AllowShortFunctionsOnASingleLine: Empty

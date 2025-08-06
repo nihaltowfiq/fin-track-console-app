@@ -2,12 +2,12 @@
   "files.associations": {
     "stdio.h": "c"
   },
-  // "[c]": {
-  //   "editor.defaultFormatter": "xaver.clang-format"
-  // },
-  // "[cpp]": {
-  //   "editor.defaultFormatter": "xaver.clang-format"
-  // },
+  "[c]": {
+    "editor.defaultFormatter": "xaver.clang-format"
+  },
+  "[cpp]": {
+    "editor.defaultFormatter": "xaver.clang-format"
+  },
   "C_Cpp.clang_format_style": "file",
   "C_Cpp.clang_format_fallbackStyle": "Google",
   "editor.defaultFormatter": "ms-vscode.cpptools",
