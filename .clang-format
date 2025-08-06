@@ -1,0 +1,19 @@
+BasedOnStyle: LLVM
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+
+BreakBeforeBraces: Attach
+
+# Ensure functions with content are always multiline
+AllowShortFunctionsOnASingleLine: Empty
+
+# Allow empty-body functions to remain one-line: `{}`
+# But not one-line with body like: `void f() { return; }`
+
+# Keep one-line if/for/while when appropriate
+AllowShortIfStatementsOnASingleLine: true
+AllowShortLoopsOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+
+ColumnLimit: 120
