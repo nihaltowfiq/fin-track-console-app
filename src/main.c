@@ -1,33 +1,45 @@
+#include "../include/auth.h"
+#include "../include/config.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int main() {
   int choice;
-
-  printf("==== Welcome to FinTrack ====\n");
+  char username[USERNAME_MAX], password[PASSWORD_MAX];
 
   while (1) {
-    printf("\n1. Login\n2. Sign Up\n3. Exit\n");
-    printf("Choose option: ");
+    printf("\n==== FinTrack Auth ====\n");
+    printf("1. Sign Up\n");
+    printf("2. Login\n");
+    printf("3. Exit\n");
+    printf("Choose: ");
     scanf("%d", &choice);
+    getchar(); // clear newline
 
-    switch (choice) {
-      case 1:
-        // call login()
-        break;
-      case 2:
-        // call signup()
-        break;
-      case 3:
-        printf("Exiting FinTrack...\n");
-        exit(0);
-        break;
+    if (choice == 3) {
+      printf("Goodbye!\n");
+      break;
+    }
 
-      default:
-        // call
-        printf("Invalid option!\n");
+    printf("Username: ");
+    scanf("%31s", username);
+    printf("Password: ");
+    scanf("%63s", password);
+
+    if (choice == 1) {
+      if (signup(username, password))
+        printf("✅ Signup successful!\n");
+      else
+        printf("❌ Signup failed! Username may already exist.\n");
+    } else if (choice == 2) {
+      if (login(username, password))
+        printf("✅ Login successful! Welcome %s\n", username);
+      else
+        printf("❌ Login failed! Incorrect credentials.\n");
+    } else {
+      printf("Invalid option.\n");
     }
   }
-
   return 0;
 }
