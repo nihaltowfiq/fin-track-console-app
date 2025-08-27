@@ -22,6 +22,7 @@ int main() {
             printf("1. Update Monthly Income\n");
             printf("2. Update Monthly Budget\n");
             printf("3. Add Transaction\n");
+            printf("4. View Transactions by Month\n");
 
             // logout and exit these two option will be last options and implemented at last
             //printf("1. Logout\n");
@@ -94,7 +95,7 @@ int main() {
                 else
                     printf("Failed to update expense.\n");
             } else if (choice == 3) {
-                char type[16], category[32], notes[128];
+                char type[16], category[32], notes[128], month[16];
                 double amount;
 
                 while (1) {
@@ -107,6 +108,10 @@ int main() {
                         printf("Invalid type! Please type 'income' or 'expense'.\n");
                     }
                 }
+
+                printf("Enter month (YYYY-MM / 2025-01): ");
+                scanf("%15s", &month);
+
                 printf("Enter amount: ");
                 scanf("%lf", &amount);
                 getchar(); // clear newline
@@ -117,10 +122,15 @@ int main() {
                 fgets(notes, sizeof(notes), stdin);
                 notes[strcspn(notes, "\n")] = 0; // remove newline
 
-                if (add_transaction(current_user, type, amount, category, notes))
+                if (add_transaction(current_user, type, month, amount, category, notes))
                     printf("Transaction added!\n");
                 else
                     printf("Failed to save transaction.\n");
+            } else if (choice == 4) {
+                char month[16];
+                printf("Enter month (YYYY-MM / 2025-01): ");
+                scanf("%15s", month);
+                view_transactions_by_month(current_user, month);
             } else {
                 printf("Invalid option.\n");
             }
