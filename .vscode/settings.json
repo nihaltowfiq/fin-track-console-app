@@ -1,18 +1,4 @@
 {
-  "files.associations": {
-    "stdio.h": "c",
-    "*.tcc": "cpp",
-    "*.c": "c",
-    "*.h": "c",
-    "*.cpp": "cpp",
-    "*.hpp": "cpp",
-    "iostream": "cpp",
-    "xstring": "cpp"
-  },
-  "C_Cpp.clang_format_style": "file",
-  "C_Cpp.clang_format_fallbackStyle": "Google",
-  "editor.defaultFormatter": "ms-vscode.cpptools",
-  "editor.formatOnSave": true,
   "C_Cpp_Runner.cCompilerPath": "gcc",
   "C_Cpp_Runner.cppCompilerPath": "g++",
   "C_Cpp_Runner.debuggerPath": "gdb",
