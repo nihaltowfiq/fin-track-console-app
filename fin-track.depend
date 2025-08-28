@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1756318552 source:c:\users\nihal\desktop\playground\fin-track\main.c
+1756396768 source:c:\users\nihal\desktop\playground\fin-track\main.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -7,12 +7,12 @@
 	"./config.h"
 	"./transaction.h"
 
-1756286150 c:\users\nihal\desktop\playground\fin-track\auth.h
+1756396646 c:\users\nihal\desktop\playground\fin-track\auth.h
 	<stdbool.h>
 
 1756285068 c:\users\nihal\desktop\playground\fin-track\config.h
 
-1756316557 source:c:\users\nihal\desktop\playground\fin-track\auth.c
+1756396800 source:c:\users\nihal\desktop\playground\fin-track\auth.c
 	<direct.h>
 	<stdbool.h>
 	<stdio.h>
@@ -22,14 +22,24 @@
 	"./auth.h"
 	"./config.h"
 
-1756318090 source:c:\users\nihal\desktop\playground\fin-track\transaction.c
+1756397233 source:c:\users\nihal\desktop\playground\fin-track\transaction.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
 	<time.h>
 	"./transaction.h"
 	"./config.h"
+	"./budget.h"
 
 1756318003 c:\users\nihal\desktop\playground\fin-track\transaction.h
 	<stdbool.h>
+
+1756397073 c:\users\nihal\desktop\playground\fin-track\budget.h
+	<stdbool.h>
+
+1756397733 source:c:\users\nihal\desktop\playground\fin-track\budget.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"./config.h"
 

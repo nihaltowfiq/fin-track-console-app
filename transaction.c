@@ -5,6 +5,7 @@
 
 #include "./transaction.h"
 #include "./config.h"
+#include "./budget.h"
 
 void get_datetime(char *date, size_t date_size) {
     time_t now = time(NULL);
@@ -44,23 +45,6 @@ typedef struct {
     char notes[128];
 } Transaction;
 
-// Get user's budget from users.csv
-double get_user_budget(const char *username) {
-    FILE *f = fopen(USERS_DB_PATH, "r");
-    if (!f) return 0.0;
-
-    char u[USERNAME_MAX], p[PASSWORD_MAX];
-    double income, budget;
-
-    while (fscanf(f, "%31[^,],%63[^,],%lf,%lf\n", u, p, &income, &budget) == 4) {
-        if (strcmp(u, username) == 0) {
-            fclose(f);
-            return budget;
-        }
-    }
-    fclose(f);
-    return 0.0;
-}
 
 // View transactions for a given month
 void view_transactions_by_month(const char *username, const char *target_month) {
@@ -122,7 +106,8 @@ void view_transactions_by_month(const char *username, const char *target_month) 
     printf("Total Expense: %.2f\n", total_expense);
 
     // Budget check
-    double budget = get_user_budget(username);
+    double budget = get_budget(username, target_month);
+
     printf("\nBudget: %.2f\n", budget);
     if (total_expense > budget) {
         printf("WARNING: You have exceeded your budget!\n");

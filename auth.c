@@ -17,8 +17,8 @@ void ensure_data_folder() {
 #endif
 }
 
-// Sign up a new user (CSV: username,password, income, budget)
-bool signup(const char *username, const char *password, double income, double budget) {
+
+bool signup(const char *username, const char *password) {
     ensure_data_folder();
 
     // Check if user already exists
@@ -35,16 +35,16 @@ bool signup(const char *username, const char *password, double income, double bu
         fclose(f);
     }
 
-    // Append new user with CSV fields
+
     f = fopen(USERS_DB_PATH, "a");
     if (!f) return false;
-    fprintf(f, "%s,%s,%.2f,%.2f\n", username, password, income, budget);
+    fprintf(f, "%s,%s\n", username, password);
     fclose(f);
     return true;
 }
 
-// Login user (checks CSV)
-bool login(const char *username, const char *password) {
+
+bool signin(const char *username, const char *password) {
     ensure_data_folder();
 
     FILE *f = fopen(USERS_DB_PATH, "r");
@@ -63,7 +63,7 @@ bool login(const char *username, const char *password) {
     return false; // login failed
 }
 
-// Update user income or expense
+
 bool update_user_field(const char *username, const char *field, double value) {
     FILE *f = fopen(USERS_DB_PATH, "r");
     if (!f) return false;
