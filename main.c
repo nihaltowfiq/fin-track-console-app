@@ -22,9 +22,10 @@ int main() {
         } else {
             printf("1. Update Budget\n");
             printf("2. Add Transaction\n");
-            printf("3. View Transactions by Month\n");
-            printf("4. Sign Out\n");
-            printf("5. Exit\n");
+            printf("3. View Transactions\n");
+            printf("4. Get Statements\n");
+            printf("5. Sign Out\n");
+            printf("6. Exit\n");
         }
         printf("Choose: ");
         scanf("%d", &choice);
@@ -127,10 +128,15 @@ int main() {
                 printf("Enter month (YYYY-MM / 2025-01): ");
                 scanf("%15s", month);
                 view_transactions_by_month(current_user, month);
-            } else if (choice == 4) {
+            } else if(choice == 4) {
+                char month[16];
+                printf("Enter month (YYYY-MM / 2025-01): ");
+                scanf("%15s", month);
+                get_statements_by_month(current_user, month);
+            } else if (choice == 5) {
                 printf("Signed out.\n");
                 is_authenticated = 0;
-            } else if (choice == 5) {
+            } else if (choice == 6) {
                 printf("Goodbye!\n");
                 break;
             } else {

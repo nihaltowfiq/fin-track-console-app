@@ -53,14 +53,14 @@ void view_transactions_by_month(const char *username, const char *target_month) 
 
     FILE *f = fopen(filename, "r");
     if (!f) {
-        printf("No transactions found for user %s.\n", username);
+        printf("\nNo transactions found for user %s.\n", username);
         return;
     }
 
     Transaction txns[1000];
     int count = 0;
 
-    // Updated fscanf to match new CSV order
+    // Load transactions
     while (fscanf(f, "%15[^,],%15[^,],%lf,%31[^,],%15[^,],%127[^\n]\n",
                   txns[count].type,
                   txns[count].month,
@@ -75,43 +75,128 @@ void view_transactions_by_month(const char *username, const char *target_month) 
     fclose(f);
 
     if (count == 0) {
-        printf("No transactions found for %s in %s.\n", username, target_month);
+        printf("\nNo transactions found for %s in %s.\n", username, target_month);
         return;
     }
 
     double total_income = 0.0, total_expense = 0.0;
 
-    printf("\n==== Transactions for %s ====\n", target_month);
+    printf("\n============================================================================\n");
+    printf("                           Transactions for %s\n", target_month);
+    printf("============================================================================\n");
 
-    // Show INCOME
-    printf("\n--- Income ---\n");
-    printf("%-15s %-10s %s\n", "Category", "Amount", "Notes");
+    // INCOME TABLE
+    printf("\n================================= INCOME ===================================\n");
+    printf("%-15s | %-10s | %-12s | %-30s\n", "Category", "Amount", "Created At", "Notes");
+    printf("----------------------------------------------------------------------------\n");
     for (int i = 0; i < count; i++) {
         if (strcmp(txns[i].type, "income") == 0) {
-            printf("%-15s %-10.2f %s\n", txns[i].category, txns[i].amount, txns[i].notes);
+            printf("%-15s | %-10.2f | %-12s | %-30s\n",
+                   txns[i].category, txns[i].amount, txns[i].date, txns[i].notes);
             total_income += txns[i].amount;
         }
     }
-    printf("Total Income: %.2f\n", total_income);
+    printf("----------------------------------------------------------------------------\n");
+    printf("TOTAL INCOME: %.2f\n", total_income);
 
-    // Show EXPENSE
-    printf("\n--- Expense ---\n");
-    printf("%-15s %-10s %s\n", "Category", "Amount", "Notes");
+    // EXPENSE TABLE
+    printf("\n================================ EXPENSE ===================================\n");
+    printf("%-15s | %-10s | %-12s | %-30s\n", "Category", "Amount", "Created At", "Notes");
+    printf("----------------------------------------------------------------------------\n");
     for (int i = 0; i < count; i++) {
         if (strcmp(txns[i].type, "expense") == 0) {
-            printf("%-15s %-10.2f %s\n", txns[i].category, txns[i].amount, txns[i].notes);
+            printf("%-15s | %-10.2f | %-12s | %-30s\n",
+                   txns[i].category, txns[i].amount, txns[i].date, txns[i].notes);
             total_expense += txns[i].amount;
         }
     }
-    printf("Total Expense: %.2f\n", total_expense);
+    printf("----------------------------------------------------------------------------\n");
+    printf("TOTAL EXPENSE: %.2f\n", total_expense);
 
     // Budget check
     double budget = get_budget(username, target_month);
-
-    printf("\nBudget: %.2f\n", budget);
+    printf("\n============================== BUDGET CHECK ================================\n");
+    printf("Budget for %s: %.2f\n", target_month, budget);
     if (total_expense > budget) {
         printf("WARNING: You have exceeded your budget!\n");
     } else {
         printf("You are within your budget.\n");
     }
+    printf("============================================================================\n");
 }
+
+
+void get_statements_by_month(const char *username, const char *target_month) {
+    char filename[128];
+    snprintf(filename, sizeof(filename), "data/%s_transactions.csv", username);
+
+    FILE *f = fopen(filename, "r");
+    if (!f) {
+        printf("\nNo transactions found for user %s.\n", username);
+        return;
+    }
+
+    Transaction txns[1000];
+    int count = 0;
+
+    // Load transactions
+    while (fscanf(f, "%15[^,],%15[^,],%lf,%31[^,],%15[^,],%127[^\n]\n",
+                  txns[count].type,
+                  txns[count].month,
+                  &txns[count].amount,
+                  txns[count].category,
+                  txns[count].date,
+                  txns[count].notes) == 6) {
+        if (strcmp(txns[count].month, target_month) == 0) {
+            count++;
+        }
+    }
+    fclose(f);
+
+    if (count == 0) {
+        printf("\nNo transactions found for %s in %s.\n", username, target_month);
+        return;
+    }
+
+    double total_income = 0.0, total_expense = 0.0;
+
+    printf("\n============================================================================\n");
+    printf("                        Monthly Statement for %s\n", target_month);
+    printf("============================================================================\n");
+
+    // STATEMENT TABLE
+    printf("%-10s | %-15s | %-10s | %-12s | %-30s\n", "Type", "Category", "Amount", "Created At", "Notes");
+    printf("----------------------------------------------------------------------------\n");
+
+    for (int i = 0; i < count; i++) {
+        printf("%-10s | %-15s | %-10.2f | %-12s | %-30s\n",
+               txns[i].type, txns[i].category, txns[i].amount, txns[i].date, txns[i].notes);
+
+        if (strcmp(txns[i].type, "income") == 0) {
+            total_income += txns[i].amount;
+        } else if (strcmp(txns[i].type, "expense") == 0) {
+            total_expense += txns[i].amount;
+        }
+    }
+
+    printf("----------------------------------------------------------------------------\n");
+
+    double savings = total_income - total_expense;
+
+    printf("\n=========================== SUMMARY ===========================\n");
+    printf("Total Income : %.2f\n", total_income);
+    printf("Total Expense: %.2f\n", total_expense);
+    printf("Savings      : %.2f\n", savings);
+    printf("================================================================\n");
+
+    double budget = get_budget(username, target_month);
+    printf("Budget for %s: %.2f\n", target_month, budget);
+    if (total_expense > budget) {
+        printf("Status: Over Budget!\n");
+    } else {
+        printf("Status: Within Budget.\n");
+    }
+    printf("================================================================\n");
+}
+
+
