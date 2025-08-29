@@ -7,13 +7,19 @@
 #include "./config.h"
 #include "./budget.h"
 
+typedef struct {
+    char type[16];
+    double amount;
+    char category[32];
+    char month[16];
+    char date[16];
+    char notes[128];
+} Transaction;
+
 void get_datetime(char *date, size_t date_size) {
     time_t now = time(NULL);
     struct tm *t = localtime(&now);
-
-    // Fill month and date
-    // strftime(month, month_size, "%Y-%m", t);    // Year-Month
-    strftime(date, date_size, "%Y-%m-%d", t);   // Full date
+    strftime(date, date_size, "%Y-%m-%d", t);
 }
 
 bool add_transaction(const char *username, const char *type, const char *month, double amount, const char *category, const char *notes) {
@@ -35,18 +41,6 @@ bool add_transaction(const char *username, const char *type, const char *month, 
     return true;
 }
 
-// Struct for a transaction
-typedef struct {
-    char type[16];
-    double amount;
-    char category[32];
-    char month[16];
-    char date[16];
-    char notes[128];
-} Transaction;
-
-
-// View transactions for a given month
 void view_transactions_by_month(const char *username, const char *target_month) {
     char filename[128];
     snprintf(filename, sizeof(filename), "data/%s_transactions.csv", username);
@@ -60,7 +54,6 @@ void view_transactions_by_month(const char *username, const char *target_month) 
     Transaction txns[1000];
     int count = 0;
 
-    // Load transactions
     while (fscanf(f, "%15[^,],%15[^,],%lf,%31[^,],%15[^,],%127[^\n]\n",
                   txns[count].type,
                   txns[count].month,
@@ -85,7 +78,6 @@ void view_transactions_by_month(const char *username, const char *target_month) 
     printf("                           Transactions for %s\n", target_month);
     printf("============================================================================\n");
 
-    // INCOME TABLE
     printf("\n================================= INCOME ===================================\n");
     printf("%-15s | %-10s | %-12s | %-30s\n", "Category", "Amount", "Created At", "Notes");
     printf("----------------------------------------------------------------------------\n");
@@ -99,7 +91,6 @@ void view_transactions_by_month(const char *username, const char *target_month) 
     printf("----------------------------------------------------------------------------\n");
     printf("TOTAL INCOME: %.2f\n", total_income);
 
-    // EXPENSE TABLE
     printf("\n================================ EXPENSE ===================================\n");
     printf("%-15s | %-10s | %-12s | %-30s\n", "Category", "Amount", "Created At", "Notes");
     printf("----------------------------------------------------------------------------\n");
@@ -113,7 +104,6 @@ void view_transactions_by_month(const char *username, const char *target_month) 
     printf("----------------------------------------------------------------------------\n");
     printf("TOTAL EXPENSE: %.2f\n", total_expense);
 
-    // Budget check
     double budget = get_budget(username, target_month);
     printf("\n============================== BUDGET CHECK ================================\n");
     printf("Budget for %s: %.2f\n", target_month, budget);
@@ -139,7 +129,6 @@ void get_statements_by_month(const char *username, const char *target_month) {
     Transaction txns[1000];
     int count = 0;
 
-    // Load transactions
     while (fscanf(f, "%15[^,],%15[^,],%lf,%31[^,],%15[^,],%127[^\n]\n",
                   txns[count].type,
                   txns[count].month,
@@ -164,7 +153,6 @@ void get_statements_by_month(const char *username, const char *target_month) {
     printf("                        Monthly Statement for %s\n", target_month);
     printf("============================================================================\n");
 
-    // STATEMENT TABLE
     printf("%-10s | %-15s | %-10s | %-12s | %-30s\n", "Type", "Category", "Amount", "Created At", "Notes");
     printf("----------------------------------------------------------------------------\n");
 
