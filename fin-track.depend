@@ -1,25 +1,23 @@
 # depslib dependency file v1.0
-1756494324 source:c:\users\nihal\desktop\playground\fin-track\main.c
+1756580307 source:c:\users\nihal\desktop\playground\fin-track\main.c
 	<stdio.h>
 	<stdlib.h>
 	"./menu.h"
 
-1756396646 c:\users\nihal\desktop\playground\fin-track\auth.h
+1756579009 c:\users\nihal\desktop\playground\fin-track\auth.h
 	<stdbool.h>
 
-1756285068 c:\users\nihal\desktop\playground\fin-track\config.h
+1756579525 c:\users\nihal\desktop\playground\fin-track\config.h
 
-1756396800 source:c:\users\nihal\desktop\playground\fin-track\auth.c
-	<direct.h>
+1756580635 source:c:\users\nihal\desktop\playground\fin-track\auth.c
 	<stdbool.h>
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
-	<sys/stat.h>
 	"./auth.h"
 	"./config.h"
 
-1756400475 source:c:\users\nihal\desktop\playground\fin-track\transaction.c
+1756580235 source:c:\users\nihal\desktop\playground\fin-track\transaction.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -28,19 +26,20 @@
 	"./config.h"
 	"./budget.h"
 
-1756400569 c:\users\nihal\desktop\playground\fin-track\transaction.h
+1756572981 c:\users\nihal\desktop\playground\fin-track\transaction.h
 	<stdbool.h>
 
 1756397073 c:\users\nihal\desktop\playground\fin-track\budget.h
 	<stdbool.h>
 
-1756397733 source:c:\users\nihal\desktop\playground\fin-track\budget.c
+1756579414 source:c:\users\nihal\desktop\playground\fin-track\budget.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
+	<stdbool.h>
 	"./config.h"
 
-1756490540 source:c:\users\nihal\desktop\playground\fin-track\menu.c
+1756575370 source:c:\users\nihal\desktop\playground\fin-track\menu.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -49,7 +48,19 @@
 	"./auth.h"
 	"./budget.h"
 	"./transaction.h"
+	"./goal.h"
 
-1756490326 c:\users\nihal\desktop\playground\fin-track\menu.h
+1756579218 c:\users\nihal\desktop\playground\fin-track\menu.h
 	"./config.h"
+
+1756579534 source:c:\users\nihal\desktop\playground\fin-track\goal.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"./transaction.h"
+	"./goal.h"
+	"./config.h"
+
+1756572611 c:\users\nihal\desktop\playground\fin-track\goal.h
+	<stdbool.h>
 

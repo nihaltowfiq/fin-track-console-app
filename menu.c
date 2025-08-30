@@ -2,18 +2,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
 #include "./menu.h"
 #include "./auth.h"
 #include "./budget.h"
 #include "./transaction.h"
+#include "./goal.h"
 
-// Utility: clear input buffer
 void clear_input_buffer() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF) {}
 }
 
-// Utility: validate month format YYYY-MM
 int is_valid_month(const char *month) {
     if (strlen(month) != 7) return 0;
     return isdigit(month[0]) && isdigit(month[1]) &&
@@ -22,19 +22,17 @@ int is_valid_month(const char *month) {
            isdigit(month[5]) && isdigit(month[6]);
 }
 
-// Utility: safely read a string (no empty input)
 void read_string(const char *prompt, char *buffer, size_t size) {
     while (1) {
         printf("%s", prompt);
         if (fgets(buffer, size, stdin)) {
-            buffer[strcspn(buffer, "\n")] = 0; // remove newline
+            buffer[strcspn(buffer, "\n")] = 0;
             if (strlen(buffer) > 0) return;
         }
         printf("Invalid input. Please try again.\n");
     }
 }
 
-// Utility: safely read a double (no negatives)
 double read_positive_double(const char *prompt) {
     double value;
     while (1) {
@@ -48,42 +46,45 @@ double read_positive_double(const char *prompt) {
     }
 }
 
-// Show guest menu
 void show_guest_menu() {
     printf("1. Sign In\n");
     printf("2. Sign Up\n");
     printf("3. Exit\n");
 }
 
-// Show user menu
 void show_user_menu() {
-    printf("1. Update Budget\n");
+    printf("\n==============================\n");
+    printf("     FinTrack Dashboard    \n");
+    printf("==============================\n");
+    printf("1. Update Expense Budget\n");
     printf("2. Add Transaction\n");
     printf("3. View Transactions\n");
     printf("4. Get Statements\n");
-    printf("5. Sign Out\n");
-    printf("6. Exit\n");
+    printf("5. Delete Transaction\n");
+    printf("6. Set Savings Goal\n");
+    printf("7. View Savings Progress\n");
+    printf("8. Sign Out\n");
+    printf("9. Exit\n");
 }
 
-// Handle guest menu
 void handle_guest_choice(int choice, int *is_authenticated, char *current_user) {
     char username[USERNAME_MAX], password[PASSWORD_MAX];
 
     switch (choice) {
-        case 1: // Sign In
+        case 1:
             read_string("Username: ", username, sizeof(username));
             read_string("Password: ", password, sizeof(password));
 
             if (signin(username, password)) {
-                printf("Login successful! Welcome %s\n", username);
+                printf("Signin successful! Welcome %s\n", username);
                 *is_authenticated = 1;
                 strcpy(current_user, username);
             } else {
-                printf("Login failed! Incorrect credentials.\n");
+                printf("Signin failed! Incorrect credentials.\n");
             }
             break;
 
-        case 2: // Sign Up
+        case 2:
             read_string("Username: ", username, sizeof(username));
             read_string("Password: ", password, sizeof(password));
 
@@ -102,48 +103,44 @@ void handle_guest_choice(int choice, int *is_authenticated, char *current_user) 
     }
 }
 
-// Handle user menu
 void handle_user_choice(int choice, int *is_authenticated, const char *current_user) {
     char month[16], type[16], category[32], notes[128];
     double amount;
 
     switch (choice) {
-        case 1: // Update Budget
+        case 1:
             while (1) {
                 read_string("Enter month (YYYY-MM): ", month, sizeof(month));
                 if (is_valid_month(month)) break;
                 printf("Invalid month format! Example: 2025-01\n");
             }
-
             amount = read_positive_double("Enter budget amount: ");
-
             if (update_budget(current_user, month, amount))
                 printf("Budget updated for %s: %.2f\n", month, amount);
             else
                 printf("Failed to update budget.\n");
             break;
 
-        case 2: // Add Transaction
+        case 2:
             while (1) {
                 read_string("Enter type (income/expense): ", type, sizeof(type));
                 if (strcmp(type, "income") == 0 || strcmp(type, "expense") == 0) break;
                 printf("Invalid type! Please type 'income' or 'expense'.\n");
             }
-
             while (1) {
                 read_string("Enter month (YYYY-MM): ", month, sizeof(month));
                 if (is_valid_month(month)) break;
                 printf("Invalid month format! Example: 2025-01\n");
             }
-
-            double current_budget = get_budget(current_user, month);
-            if (current_budget == 0.0) {
-                printf("No budget found for %s.\n", month);
-                double new_budget = read_positive_double("Enter budget for this month: ");
-                if (update_budget(current_user, month, new_budget))
-                    printf("Budget added for %s: %.2f\n", month, new_budget);
+            {
+                double current_budget = get_budget(current_user, month);
+                if (current_budget == 0.0) {
+                    printf("No expense budget found for %s.\n", month);
+                    double new_budget = read_positive_double("Enter expense budget for this month: ");
+                    if (update_budget(current_user, month, new_budget))
+                        printf("Budget added for %s: %.2f\n", month, new_budget);
+                }
             }
-
             amount = read_positive_double("Enter amount: ");
             read_string("Enter category: ", category, sizeof(category));
             read_string("Enter notes: ", notes, sizeof(notes));
@@ -154,7 +151,7 @@ void handle_user_choice(int choice, int *is_authenticated, const char *current_u
                 printf("Failed to save transaction.\n");
             break;
 
-        case 3: // View Transactions
+        case 3:
             while (1) {
                 read_string("Enter month (YYYY-MM): ", month, sizeof(month));
                 if (is_valid_month(month)) break;
@@ -163,7 +160,7 @@ void handle_user_choice(int choice, int *is_authenticated, const char *current_u
             view_transactions_by_month(current_user, month);
             break;
 
-        case 4: // Get Statements
+        case 4:
             while (1) {
                 read_string("Enter month (YYYY-MM): ", month, sizeof(month));
                 if (is_valid_month(month)) break;
@@ -172,14 +169,56 @@ void handle_user_choice(int choice, int *is_authenticated, const char *current_u
             get_statements_by_month(current_user, month);
             break;
 
-        case 5: // Sign Out
+        case 5: {
+            int txn_id;
+            printf("Enter Transaction ID to delete: ");
+            if (scanf("%d", &txn_id) != 1) {
+                printf("Invalid input. Must be a number.\n");
+                clear_input_buffer();
+                break;
+            }
+            clear_input_buffer();
+            if (delete_transaction(current_user, txn_id))
+                printf("Transaction %d deleted successfully.\n", txn_id);
+            else
+                printf("Transaction not found.\n");
+            break;
+        }
+
+        case 6: {
+            char goal_name[64], goal_month[16];
+            double goal_amount;
+            read_string("Enter goal name: ", goal_name, sizeof(goal_name));
+            goal_amount = read_positive_double("Enter target amount: ");
+            while (1) {
+                read_string("Enter target month (YYYY-MM): ", goal_month, sizeof(goal_month));
+                if (is_valid_month(goal_month)) break;
+                printf("Invalid month format! Example: 2025-12\n");
+            }
+            if (set_savings_goal(current_user, goal_name, goal_amount, goal_month))
+                printf("Savings goal added!\n");
+            else
+                printf("Failed to add goal.\n");
+            break;
+        }
+
+        case 7:
+            while (1) {
+                read_string("Enter month (YYYY-MM): ", month, sizeof(month));
+                if (is_valid_month(month)) break;
+                printf("Invalid month format! Example: 2025-01\n");
+            }
+            show_savings_progress(current_user, month);
+            break;
+
+        case 8:
             printf("Signed out.\n");
             *is_authenticated = 0;
             break;
 
-        case 6: // Exit
+        case 9:
             printf("Goodbye!\n");
-            break;
+            exit(0);
 
         default:
             printf("Invalid option. Try again.\n");

@@ -15,15 +15,15 @@ int main() {
     int is_authenticated = 0;
 
     while (1) {
-        print_header();
 
         if (!is_authenticated) {
+            print_header();
             show_guest_menu();
         } else {
             show_user_menu();
         }
 
-        printf("\nChoose: ");
+        printf("\nChoose option: ");
         scanf("%d", &choice);
         getchar();
 
@@ -32,7 +32,7 @@ int main() {
             if (choice == 3) break;
         } else {
             handle_user_choice(choice, &is_authenticated, current_user);
-            if (choice == 6) break;
+            if (choice == 9) break;
         }
     }
     return 0;

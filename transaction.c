@@ -7,14 +7,22 @@
 #include "./config.h"
 #include "./budget.h"
 
-typedef struct {
-    char type[16];
-    double amount;
-    char category[32];
-    char month[16];
-    char date[16];
-    char notes[128];
-} Transaction;
+int get_next_transaction_id(const char *username) {
+    char filename[128];
+    snprintf(filename, sizeof(filename), TRANSACTION_DB_PATH, username);
+
+    FILE *f = fopen(filename, "r");
+    if (!f) return 1;
+
+    int id, max_id = 0;
+    Transaction t;
+    while (fscanf(f, "%d,%15[^,],%15[^,],%lf,%31[^,],%15[^,],%127[^\n]\n",
+                  &id, t.type, t.month, &t.amount, t.category, t.date, t.notes) == 7) {
+        if (id > max_id) max_id = id;
+    }
+    fclose(f);
+    return max_id + 1;
+}
 
 void get_datetime(char *date, size_t date_size) {
     time_t now = time(NULL);
@@ -24,7 +32,7 @@ void get_datetime(char *date, size_t date_size) {
 
 bool add_transaction(const char *username, const char *type, const char *month, double amount, const char *category, const char *notes) {
     char filename[128];
-    snprintf(filename, sizeof(filename), "data/%s_transactions.csv", username);
+    snprintf(filename, sizeof(filename), TRANSACTION_DB_PATH, username);
 
     FILE *f = fopen(filename, "a");
     if (!f) {
@@ -34,16 +42,46 @@ bool add_transaction(const char *username, const char *type, const char *month, 
 
     char date[16];
     get_datetime(date, sizeof(date));
+    int id = get_next_transaction_id(username);
 
-
-    fprintf(f, "%s,%s,%.2f,%s,%s,%s\n", type,  month, amount, category, date, notes);
+    fprintf(f, "%d,%s,%s,%.2f,%s,%s,%s\n", id, type, month, amount, category, date, notes);
     fclose(f);
     return true;
 }
 
+bool delete_transaction(const char *username, int target_id) {
+    char filename[128], temp_file[128];
+    snprintf(filename, sizeof(filename), TRANSACTION_DB_PATH, username);
+    snprintf(temp_file, sizeof(temp_file), "data/%s_transactions_temp.csv", username);
+
+    FILE *f = fopen(filename, "r");
+    FILE *temp = fopen(temp_file, "w");
+    if (!f || !temp) return false;
+
+    int id;
+    Transaction t;
+    bool deleted = false;
+
+    while (fscanf(f, "%d,%15[^,],%15[^,],%lf,%31[^,],%15[^,],%127[^\n]\n",
+                  &id, t.type, t.month, &t.amount, t.category, t.date, t.notes) == 7) {
+        if (id == target_id) {
+            deleted = true;
+            continue;
+        }
+        fprintf(temp, "%d,%s,%s,%.2f,%s,%s,%s\n", id, t.type, t.month, t.amount, t.category, t.date, t.notes);
+    }
+
+    fclose(f);
+    fclose(temp);
+    remove(filename);
+    rename(temp_file, filename);
+
+    return deleted;
+}
+
 void view_transactions_by_month(const char *username, const char *target_month) {
     char filename[128];
-    snprintf(filename, sizeof(filename), "data/%s_transactions.csv", username);
+    snprintf(filename, sizeof(filename), TRANSACTION_DB_PATH, username);
 
     FILE *f = fopen(filename, "r");
     if (!f) {
@@ -52,15 +90,17 @@ void view_transactions_by_month(const char *username, const char *target_month) 
     }
 
     Transaction txns[1000];
+    int ids[1000];
     int count = 0;
 
-    while (fscanf(f, "%15[^,],%15[^,],%lf,%31[^,],%15[^,],%127[^\n]\n",
+    while (fscanf(f, "%d,%15[^,],%15[^,],%lf,%31[^,],%15[^,],%127[^\n]\n",
+                  &ids[count],
                   txns[count].type,
                   txns[count].month,
                   &txns[count].amount,
                   txns[count].category,
                   txns[count].date,
-                  txns[count].notes) == 6) {
+                  txns[count].notes) == 7) {
         if (strcmp(txns[count].month, target_month) == 0) {
             count++;
         }
@@ -79,12 +119,12 @@ void view_transactions_by_month(const char *username, const char *target_month) 
     printf("============================================================================\n");
 
     printf("\n================================= INCOME ===================================\n");
-    printf("%-15s | %-10s | %-12s | %-30s\n", "Category", "Amount", "Created At", "Notes");
+    printf("%-5s | %-15s | %-10s | %-12s | %-30s\n", "ID", "Category", "Amount", "Created At", "Notes");
     printf("----------------------------------------------------------------------------\n");
     for (int i = 0; i < count; i++) {
         if (strcmp(txns[i].type, "income") == 0) {
-            printf("%-15s | %-10.2f | %-12s | %-30s\n",
-                   txns[i].category, txns[i].amount, txns[i].date, txns[i].notes);
+            printf("%-5d | %-15s | %-10.2f | %-12s | %-30s\n",
+                   ids[i], txns[i].category, txns[i].amount, txns[i].date, txns[i].notes);
             total_income += txns[i].amount;
         }
     }
@@ -92,12 +132,12 @@ void view_transactions_by_month(const char *username, const char *target_month) 
     printf("TOTAL INCOME: %.2f\n", total_income);
 
     printf("\n================================ EXPENSE ===================================\n");
-    printf("%-15s | %-10s | %-12s | %-30s\n", "Category", "Amount", "Created At", "Notes");
+    printf("%-5s | %-15s | %-10s | %-12s | %-30s\n", "ID", "Category", "Amount", "Created At", "Notes");
     printf("----------------------------------------------------------------------------\n");
     for (int i = 0; i < count; i++) {
         if (strcmp(txns[i].type, "expense") == 0) {
-            printf("%-15s | %-10.2f | %-12s | %-30s\n",
-                   txns[i].category, txns[i].amount, txns[i].date, txns[i].notes);
+            printf("%-5d | %-15s | %-10.2f | %-12s | %-30s\n",
+                   ids[i], txns[i].category, txns[i].amount, txns[i].date, txns[i].notes);
             total_expense += txns[i].amount;
         }
     }
@@ -115,10 +155,9 @@ void view_transactions_by_month(const char *username, const char *target_month) 
     printf("============================================================================\n");
 }
 
-
 void get_statements_by_month(const char *username, const char *target_month) {
     char filename[128];
-    snprintf(filename, sizeof(filename), "data/%s_transactions.csv", username);
+    snprintf(filename, sizeof(filename), TRANSACTION_DB_PATH, username);
 
     FILE *f = fopen(filename, "r");
     if (!f) {
@@ -127,15 +166,17 @@ void get_statements_by_month(const char *username, const char *target_month) {
     }
 
     Transaction txns[1000];
+    int ids[1000];
     int count = 0;
 
-    while (fscanf(f, "%15[^,],%15[^,],%lf,%31[^,],%15[^,],%127[^\n]\n",
+    while (fscanf(f, "%d,%15[^,],%15[^,],%lf,%31[^,],%15[^,],%127[^\n]\n",
+                  &ids[count],
                   txns[count].type,
                   txns[count].month,
                   &txns[count].amount,
                   txns[count].category,
                   txns[count].date,
-                  txns[count].notes) == 6) {
+                  txns[count].notes) == 7) {
         if (strcmp(txns[count].month, target_month) == 0) {
             count++;
         }
@@ -152,13 +193,14 @@ void get_statements_by_month(const char *username, const char *target_month) {
     printf("\n============================================================================\n");
     printf("                        Monthly Statement for %s\n", target_month);
     printf("============================================================================\n");
-
-    printf("%-10s | %-15s | %-10s | %-12s | %-30s\n", "Type", "Category", "Amount", "Created At", "Notes");
+    printf("%-5s | %-10s | %-15s | %-10s | %-12s | %-30s\n",
+           "ID", "Type", "Category", "Amount", "Created At", "Notes");
     printf("----------------------------------------------------------------------------\n");
 
     for (int i = 0; i < count; i++) {
-        printf("%-10s | %-15s | %-10.2f | %-12s | %-30s\n",
-               txns[i].type, txns[i].category, txns[i].amount, txns[i].date, txns[i].notes);
+        printf("%-5d | %-10s | %-15s | %-10.2f | %-12s | %-30s\n",
+               ids[i], txns[i].type, txns[i].category, txns[i].amount,
+               txns[i].date, txns[i].notes);
 
         if (strcmp(txns[i].type, "income") == 0) {
             total_income += txns[i].amount;
@@ -186,5 +228,3 @@ void get_statements_by_month(const char *username, const char *target_month) {
     }
     printf("================================================================\n");
 }
-
-

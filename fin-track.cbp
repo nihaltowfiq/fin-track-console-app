@@ -40,6 +40,10 @@
 		</Unit>
 		<Unit filename="budget.h" />
 		<Unit filename="config.h" />
+		<Unit filename="goal.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="goal.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>

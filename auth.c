@@ -1,40 +1,23 @@
-#include <direct.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 
 #include "./auth.h"
 #include "./config.h"
 
-// Ensure data folder exists
-void ensure_data_folder() {
-#if defined(_WIN32)
-    _mkdir("data");
-#else
-    mkdir("data", 0775);
-#endif
-}
-
-
 bool signup(const char *username, const char *password) {
-    ensure_data_folder();
-
-    // Check if user already exists
     FILE *f = fopen(USERS_DB_PATH, "r");
     if (f) {
         char u[USERNAME_MAX], p[PASSWORD_MAX];
-        double in, ex;
-        while (fscanf(f, "%31[^,],%63[^,],%lf,%lf\n", u, p, &in, &ex) == 4) {
+        while (fscanf(f, "%31[^,],%63[^\n]\n", u, p) == 2) {
             if (strcmp(u, username) == 0) {
                 fclose(f);
-                return false; // user exists
+                return false;
             }
         }
         fclose(f);
     }
-
 
     f = fopen(USERS_DB_PATH, "a");
     if (!f) return false;
@@ -43,58 +26,19 @@ bool signup(const char *username, const char *password) {
     return true;
 }
 
-
 bool signin(const char *username, const char *password) {
-    ensure_data_folder();
-
     FILE *f = fopen(USERS_DB_PATH, "r");
     if (!f) return false;
 
     char u[USERNAME_MAX], p[PASSWORD_MAX];
-    double in, ex;
-    while (fscanf(f, "%31[^,],%63[^,],%lf,%lf\n", u, p, &in, &ex) == 4) {
+    while (fscanf(f, "%31[^,],%63[^\n]\n", u, p) == 2) {
         if (strcmp(u, username) == 0 && strcmp(p, password) == 0) {
             fclose(f);
-            return true; // login success
+            return true;
         }
     }
 
     fclose(f);
-    return false; // login failed
+    return false;
 }
 
-
-bool update_user_field(const char *username, const char *field, double value) {
-    FILE *f = fopen(USERS_DB_PATH, "r");
-    if (!f) return false;
-
-    FILE *temp = fopen("data/temp.csv", "w");
-    if (!temp) {
-        fclose(f);
-        return false;
-    }
-
-    char u[USERNAME_MAX], p[PASSWORD_MAX];
-    double in, ex;
-    int updated = 0;
-
-    while (fscanf(f, "%31[^,],%63[^,],%lf,%lf\n", u, p, &in, &ex) == 4) {
-        if (strcmp(u, username) == 0) {
-            if (strcmp(field, "income") == 0)
-                in = value;
-            else if (strcmp(field, "expense") == 0)
-                ex = value;
-            updated = 1;
-        }
-        fprintf(temp, "%s,%s,%.2f,%.2f\n", u, p, in, ex);
-    }
-
-    fclose(f);
-    fclose(temp);
-
-    // Replace old file
-    remove(USERS_DB_PATH);
-    rename("data/temp.csv", USERS_DB_PATH);
-
-    return updated;
-}

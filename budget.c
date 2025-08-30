@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+
 #include "./config.h"
 
-// Update or insert monthly budget for a user
 bool update_budget(const char *username, const char *month, double amount) {
     char filename[128];
-    snprintf(filename, sizeof(filename), "data/%s_budgets.csv", username);
+    snprintf(filename, sizeof(filename), BUDGET_DB_PATH, username);
 
-    // Load existing budgets into memory
     FILE *f = fopen(filename, "r");
     char lines[1000][64];
     int count = 0;
@@ -30,13 +30,11 @@ bool update_budget(const char *username, const char *month, double amount) {
         fclose(f);
     }
 
-    // If month not found, add it
     if (!updated) {
         snprintf(lines[count], sizeof(lines[count]), "%s,%.2f\n", month, amount);
         count++;
     }
 
-    // Write all back
     f = fopen(filename, "w");
     if (!f) return false;
     for (int i = 0; i < count; i++) {
@@ -46,10 +44,9 @@ bool update_budget(const char *username, const char *month, double amount) {
     return true;
 }
 
-// Get budget for a month
 double get_budget(const char *username, const char *month) {
     char filename[128];
-    snprintf(filename, sizeof(filename), "data/%s_budgets.csv", username);
+    snprintf(filename, sizeof(filename), BUDGET_DB_PATH, username);
 
     FILE *f = fopen(filename, "r");
     if (!f) return 0.0;
