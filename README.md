@@ -4,28 +4,31 @@ FinTrack is a simple C console application for tracking personal finances. It al
 
 ## Features
 
-- User authentication
-- Add, view, and delete transactions
-- Store data in CSV files
-- Simple and fast command-line interface
+- User signup and signin (with CSV-based credential storage)
+- Add, view, and delete financial transactions
+- Track income and expenses per user
+- Simple command-line interface
 
 ## Folder Structure
 
-- `main.c` - Entry point of the application
-- `auth.c`, `auth.h` - User authentication logic
-- `transaction.c`, `transaction.h` - Transaction management
-- `data/` - Stores user and transaction CSV files
-- `bin/` - Compiled binaries
+- `main.c` — Application entry point, handles main menu and user flow
+- `auth.c`, `auth.h` — User authentication (signup, signin)
+- `transaction.c`, `transaction.h` — Transaction management (add, view, delete)
+- `config.h` — Configuration constants (e.g., file paths, limits)
+- `data/` — Stores CSV files for users and transactions
+- `bin/Debug/fin-track.exe` — Compiled executable (output)
+- `obj/Debug/` — Object files from compilation
 
-## Usage
+## How to Build and Run
 
-1. Build the project using a C compiler (e.g., GCC):
+1. Open a terminal in the project directory.
+2. Build the project (example for GCC):
 
 ```bash
 gcc main.c auth.c transaction.c -o bin/fin-track.exe
 ```
 
-2. Run the application:
+3. Run the application:
 
 ```bash
 ./bin/fin-track.exe
