@@ -17,7 +17,7 @@
 	"./auth.h"
 	"./config.h"
 
-1756580235 source:c:\users\nihal\desktop\playground\fin-track\transaction.c
+1756582378 source:c:\users\nihal\desktop\playground\fin-track\transaction.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -39,7 +39,7 @@
 	<stdbool.h>
 	"./config.h"
 
-1756575370 source:c:\users\nihal\desktop\playground\fin-track\menu.c
+1756581455 source:c:\users\nihal\desktop\playground\fin-track\menu.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
